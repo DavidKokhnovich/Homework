@@ -1,19 +1,25 @@
+import random
+import string
 from datetime import datetime
 
 books = []
 readers = {}
 loans = {}
 
+def generate_unique_code(length=6):
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
-def add_book(title, author, code):
+def add_book(title, author):
+    code = generate_unique_code()
     books.append({'title': title, 'author': author, 'code': code})
+    print(f"Книга добавлена: {title} (код: {code})")
 
-def register_reader(reader_id, last_name, first_name):
-    if reader_id not in readers:
-        readers[reader_id] = {'last_name': last_name, 'first_name': first_name, 'loans': []}
-        print(f"Читатель {first_name} {last_name} зарегистрирован.")
-    else:
-        print("Читатель уже зарегистрирован.")
+def register_reader(last_name, first_name):
+    reader_id = str(random.randint(1000, 9999))
+    while reader_id in readers:
+        reader_id = str(random.randint(1000, 9999))
+    readers[reader_id] = {'last_name': last_name, 'first_name': first_name, 'loans': []}
+    print(f"Читатель {first_name} {last_name} зарегистрирован с ID: {reader_id}.")
 
 def loan_book(reader_id, book_code):
     if reader_id in readers and any(book['code'] == book_code for book in books):
@@ -40,18 +46,18 @@ def return_book(reader_id, book_code):
 
 def list_available_books():
     print("Доступные книги:")
-    for book in books:
-        if book['code'] not in loans:
+    available_books = [book for book in books if book['code'] not in loans]
+    if available_books:
+        for book in available_books:
             print(f"Код: {book['code']}, Название: {book['title']}, Автор: {book['author']}")
-    if not any(book['code'] not in loans for book in books):
+    else:
         print("Нет доступных книг.")
 
 def main():
 
-    # книги
-    add_book("Война и мир", "Лев Толстой", "001")
-    add_book("Маленький принц", "Антуан де Сент-Экзюпери", "002")
-    add_book("Герой нашего времени", "Михаил Лермонтов", "003")
+    add_book("Война и мир", "Лев Толстой")
+    add_book("Маленький принц", "Антуан де Сент-Экзюпери")
+    add_book("Герой нашего времени", "Михаил Лермонтов")
 
     while True:
         print("1. Регистрация читателя")
@@ -63,11 +69,9 @@ def main():
         choice = input("Выберите действие: ")
 
         if choice == '1':
-            reader_id = str(len(readers) + 1)
-            print(f"Ваш ID: {reader_id}")
             last_name = input("Введите фамилию: ")
             first_name = input("Введите имя: ")
-            register_reader(reader_id, last_name, first_name)
+            register_reader(last_name, first_name)
 
         elif choice == '2':
             reader_id = input("Введите ID читателя: ")
@@ -89,5 +93,6 @@ def main():
         else:
             print("Недопустимый выбор. Попробуйте снова.")
 
-print("Главное меню")
+    print("Главное меню")
+
 main()
